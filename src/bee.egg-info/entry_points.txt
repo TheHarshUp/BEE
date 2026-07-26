@@ -1,0 +1,2 @@
+[console_scripts]
+bee = bee.cli:main

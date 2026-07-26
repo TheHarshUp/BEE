@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: bee
+Version: 0.1.0
+Summary: An open-source AI coding agent built from scratch.
+Requires-Python: >=3.14
+Description-Content-Type: text/markdown

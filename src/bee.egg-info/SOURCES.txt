@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+src/bee/__init__.py
+src/bee/cli.py
+src/bee.egg-info/PKG-INFO
+src/bee.egg-info/SOURCES.txt
+src/bee.egg-info/dependency_links.txt
+src/bee.egg-info/entry_points.txt
+src/bee.egg-info/top_level.txt
