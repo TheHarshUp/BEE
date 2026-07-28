@@ -1,8 +1,14 @@
 .venv/
+.env
+.DS_Store
+
 __pycache__/
 *.py[cod]
 *.pyo
-.env
-.DS_Store
-.vscode/
+*.pyd
+
+*.egg-info/
+build/
+dist/
+
 *.log

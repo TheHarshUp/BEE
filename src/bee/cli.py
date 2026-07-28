@@ -1,2 +1,5 @@
+from bee.agent import Agent
+
+
 def main():
-    print("🐝 Welcome to BEE!")
+    Agent().run()
