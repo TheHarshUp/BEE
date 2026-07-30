@@ -1,6 +1,9 @@
 from rich.console import Console
 from rich.panel import Panel
 from bee.llm import LLM
+from bee.memory import Memory
+from bee.commands import help, version, clear, exit, pwd
+from bee.context import CommandContext
 
 console = Console()
 
@@ -8,17 +11,22 @@ console = Console()
 class Agent:
     def __init__(self):
         self.llm = LLM()
+        self.memory = Memory()
+        self.context = CommandContext(
+            console=console,
+            agent=self,
+        )
+        self.commands = {
+            "/help": help.run,
+            "/version": version.run,
+            "/clear": clear.run,
+            "/exit": exit.run,
+            "/pwd": pwd.run,
+        }
     VERSION = "0.1.0"
 
     def run(self):
         self.banner()
-
-        commands = {
-            "/help": self.cmd_help,
-            "/version": self.cmd_version,
-            "/clear": self.cmd_clear,
-            "/exit": self.cmd_exit,
-        }
 
         while True:
             command = console.input("[bold yellow]bee > [/]").strip()
@@ -27,12 +35,19 @@ class Agent:
                 continue
 
             if command.startswith("/"):
-                if command in commands:
-                    commands[command]()
+                if command in self.commands:
+                    self.commands[command](self.context)
                 else:
                     console.print(f"[red]❌ Unknown command:[/] {command}")
             else:
-                response = self.llm.generate(command)
+                self.memory.add_user(command)
+
+                response = self.llm.generate(
+                    self.memory.get_messages()
+                )
+
+                self.memory.add_assistant(response)
+
                 console.print(f"\n🤖 {response}\n")
 
     def banner(self):
@@ -51,30 +66,3 @@ Version {self.VERSION}
         console.print(
             "[dim]Type [bold]/help[/] to see available commands.[/]\n"
         )
-
-    def cmd_help(self):
-        console.print(
-            Panel.fit(
-                """
-[bold cyan]Available Commands[/]
-
-[yellow]/help[/]      Show this menu
-[yellow]/version[/]   Show version
-[yellow]/clear[/]     Clear the screen
-[yellow]/exit[/]      Exit BEE
-""",
-                title="Help",
-                border_style="cyan",
-            )
-        )
-
-    def cmd_version(self):
-        console.print(f"\n🐝 [bold green]BEE v{self.VERSION}[/]\n")
-
-    def cmd_clear(self):
-        console.clear()
-        self.banner()
-
-    def cmd_exit(self):
-        console.print("\n👋 [bold red]Goodbye![/]")
-        raise SystemExit
