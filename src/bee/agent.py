@@ -2,17 +2,10 @@ from rich.console import Console
 from rich.panel import Panel
 from bee.llm import LLM
 from bee.memory import Memory
-from bee.commands import (
-    help,
-    version,
-    clear,
-    exit,
-    pwd,
-    ls,
-)
 from bee.context import CommandContext
 from bee.filesystem import FileSystem
-from bee.commands import tree
+from bee.command import Command
+from bee.command_loader import load_commands
 console = Console()
 
 
@@ -29,15 +22,7 @@ class Agent:
             fs=self.fs,
         )
 
-        self.commands = {
-            "/help": help.run,
-            "/version": version.run,
-            "/clear": clear.run,
-            "/exit": exit.run,
-            "/pwd": pwd.run,
-            "/ls": ls.run,
-            "/tree": tree.run,
-        }
+        self.commands = load_commands()
     VERSION = "0.1.0"
 
     def run(self):
@@ -50,10 +35,20 @@ class Agent:
                 continue
 
             if command.startswith("/"):
-                if command in self.commands:
-                    self.commands[command](self.context)
+                parts = command.split()
+
+                self.context.command = Command(
+                    raw=command,
+                    name=parts[0],
+                    args=parts[1:],
+                )
+
+                if self.context.command.name in self.commands:
+                    self.commands[self.context.command.name](self.context)
                 else:
-                    console.print(f"[red]❌ Unknown command:[/] {command}")
+                    console.print(
+                        f"[red]❌ Unknown command:[/] {self.context.command.name}"
+                    )
             else:
                 self.memory.add_user(command)
 
