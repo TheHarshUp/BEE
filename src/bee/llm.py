@@ -1,9 +1,21 @@
+import os
+
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class LLM:
-    URL = "http://26.225.84.227:1234/v1/chat/completions"
-    MODEL = "qwen/qwen2.5-vl-7b"
+    URL = os.getenv(
+        "BEE_LLM_URL",
+        "http://127.0.0.1:1234/v1/chat/completions",
+    )
+
+    MODEL = os.getenv(
+        "BEE_MODEL",
+        "qwen/qwen2.5-vl-7b",
+    )
 
     def generate(self, messages):
         payload = {
@@ -13,7 +25,11 @@ class LLM:
             "max_tokens": 1024,
         }
 
-        response = requests.post(self.URL, json=payload)
+        response = requests.post(
+            self.URL,
+            json=payload,
+            timeout=30,
+        )
         response.raise_for_status()
 
         data = response.json()

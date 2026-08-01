@@ -4,5 +4,6 @@ Version: 0.1.0
 Summary: An open-source AI coding agent built from scratch.
 Requires-Python: >=3.14
 Description-Content-Type: text/markdown
+Requires-Dist: python-dotenv>=1.2.2
 Requires-Dist: requests>=2.34.2
 Requires-Dist: rich>=15.0.0
