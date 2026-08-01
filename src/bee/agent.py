@@ -12,6 +12,7 @@ from bee.commands import (
 )
 from bee.context import CommandContext
 from bee.filesystem import FileSystem
+from bee.commands import tree
 console = Console()
 
 
@@ -35,6 +36,7 @@ class Agent:
             "/exit": exit.run,
             "/pwd": pwd.run,
             "/ls": ls.run,
+            "/tree": tree.run,
         }
     VERSION = "0.1.0"
 
