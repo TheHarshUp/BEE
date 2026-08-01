@@ -4,7 +4,7 @@ from bee.llm import LLM
 from bee.memory import Memory
 from bee.commands import help, version, clear, exit, pwd
 from bee.context import CommandContext
-
+from bee.filesystem import FileSystem
 console = Console()
 
 
@@ -12,10 +12,15 @@ class Agent:
     def __init__(self):
         self.llm = LLM()
         self.memory = Memory()
+
+        self.fs = FileSystem()
+
         self.context = CommandContext(
             console=console,
             agent=self,
+            fs=self.fs,
         )
+
         self.commands = {
             "/help": help.run,
             "/version": version.run,

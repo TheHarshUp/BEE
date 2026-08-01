@@ -2,7 +2,7 @@ import requests
 
 
 class LLM:
-    URL = "http://192.168.1.35:1234/v1/chat/completions"
+    URL = "http://26.225.84.227:1234/v1/chat/completions"
     MODEL = "qwen/qwen2.5-vl-7b"
 
     def generate(self, messages):

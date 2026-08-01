@@ -6,3 +6,4 @@ from rich.console import Console
 class CommandContext:
     console: Console
     agent: object
+    fs: object
