@@ -2,7 +2,14 @@ from rich.console import Console
 from rich.panel import Panel
 from bee.llm import LLM
 from bee.memory import Memory
-from bee.commands import help, version, clear, exit, pwd
+from bee.commands import (
+    help,
+    version,
+    clear,
+    exit,
+    pwd,
+    ls,
+)
 from bee.context import CommandContext
 from bee.filesystem import FileSystem
 console = Console()
@@ -27,6 +34,7 @@ class Agent:
             "/clear": clear.run,
             "/exit": exit.run,
             "/pwd": pwd.run,
+            "/ls": ls.run,
         }
     VERSION = "0.1.0"
 
