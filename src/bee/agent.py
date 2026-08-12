@@ -56,7 +56,6 @@ class Agent:
                     self.commands[
                         self.context.command.name
                     ](self.context)
-
                 else:
                     console.print(
                         f"[red]❌ Unknown command:[/] "
@@ -69,45 +68,68 @@ class Agent:
     def handle_chat(self, command):
         self.memory.add_user(command)
 
-        response = self.llm.generate(
-            self.memory.get_messages()
-        )
-
-        print("=" * 50)
-        print(response)
-        print("=" * 50)
-
-        try:
-            data = json.loads(response)
-
-        except json.JSONDecodeError:
-            console.print(
-                f"\n🤖 {response}\n"
-            )
-            return
-
-        tool_name = data.get("tool")
-
-        if tool_name == "none":
-            console.print(
-                f"\n🤖 {data.get('response', '')}\n"
-            )
-            return
-
-        try:
-            result = self.tools.execute(response)
-
-            console.print(
-                f"\n🔧 {tool_name}"
-            )
-            console.print(
-                f"[green]✔ {result}[/]\n"
+        while True:
+            response = self.llm.generate(
+                self.memory.get_messages()
             )
 
-        except Exception as e:
-            console.print(
-                f"\n[red]❌ Tool error:[/] {e}\n"
-            )
+            try:
+                data = json.loads(response)
+
+            except json.JSONDecodeError:
+                console.print(
+                    f"\n🤖 {response}\n"
+                )
+                self.memory.add_assistant(response)
+                return
+
+            tool_name = data.get("tool")
+
+            if tool_name == "none":
+                final_response = data.get(
+                    "response",
+                    "",
+                )
+
+                self.memory.add_assistant(
+                    final_response
+                )
+
+                console.print(
+                    f"\n🤖 {final_response}\n"
+                )
+
+                return
+
+            try:
+                console.print(
+                    f"\n🔧 {tool_name}"
+                )
+
+                result = self.tools.execute(
+                    response
+                )
+
+                console.print(
+                    f"[green]✔ Tool completed[/]\n"
+                )
+
+                self.memory.add_assistant(
+                    response
+                )
+
+                self.memory.add_tool_result(
+                    result
+                )
+
+            except Exception as e:
+                console.print(
+                    f"\n[red]❌ Tool error:[/] {e}\n"
+                )
+
+                self.memory.add_tool_result(
+                    f"Tool failed: {e}"
+                )
 
     def banner(self):
         console.print(
