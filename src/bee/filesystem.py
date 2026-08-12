@@ -33,6 +33,11 @@ class FileSystem:
                 f"Current file content:\n{content}"
             )
 
+        if new_text.count(old_text) > 1:
+            raise ValueError(
+                "Edit rejected because the new text duplicates existing content."
+            )
+
         updated_content = content.replace(
             old_text,
             new_text,

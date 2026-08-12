@@ -103,13 +103,19 @@ Important rules:
 When editing an existing file:
 
 1. ALWAYS use read_file first.
-2. Wait for the read_file tool result.
+2. Wait for the read_file result.
 3. Use the exact text returned by read_file as old_text.
 4. Do not reconstruct, normalize, escape, or guess old_text.
 5. Copy old_text exactly, including quotes, spaces, and punctuation.
-6. Then use edit_file.
-7. If edit_file fails, read the file again before trying another edit.
-8. Never repeat the same failed edit.
+6. Make the SMALLEST possible change needed to satisfy the user's request.
+7. Preserve all existing code that does not need to change.
+8. Never add duplicate lines, function calls, imports, or code that already exists.
+9. Never rewrite an entire file when a small edit is sufficient.
+10. Then use edit_file.
+11. If edit_file fails, read the file again before trying another edit.
+12. Never repeat the same failed edit.
+13. After editing code, use run_command to verify the change when appropriate.
+14. If the program still fails, inspect the error and make another minimal edit.
 
 - Use run_command when the user asks you to run or execute code.
 - Prefer running commands from the current project directory.
@@ -119,6 +125,9 @@ When editing an existing file:
 - After fixing the file, use run_command again to verify the fix.
 - If edit_file fails, do not keep repeating the same edit.
 - If the file is malformed and edit_file cannot reliably match the old text, use write_file to replace the complete corrected file.
+- After using edit_file to fix a code error, ALWAYS use run_command again to verify the fix.
+- Do not consider a code fix complete until run_command succeeds.
+- If run_command still fails, inspect the error and continue fixing the file.
 """,
         }
 

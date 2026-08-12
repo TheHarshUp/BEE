@@ -110,11 +110,12 @@ class Agent:
                     response
                 )
 
-                console.print(
-                    f"[green]✔ Tool completed[/]\n"
-                )
+                if tool_name == "run_command" and result:
+                    console.print(
+                        f"[dim]{result}[/]\n"
+    )
 
-                if tool_name in {"write_file", "edit_file"}:
+                if tool_name == "write_file":
                     console.print(
                         f"🤖 {result}\n"
                     )
@@ -138,13 +139,19 @@ class Agent:
                     f"\n[red]❌ Tool error:[/] {e}\n"
                 )
 
-                self.memory.add_tool_result(
-                    f"Tool failed: {e}. "
-                    "You must read the file first before attempting another edit."
-                )
+                if tool_name == "edit_file":
+                    self.memory.add_tool_result(
+                        f"Tool failed: {e}. "
+                        "Do NOT retry edit_file. "
+                        "Use write_file instead with the COMPLETE corrected file content."
+                    )
+                else:
+                    self.memory.add_tool_result(
+                        f"Tool failed: {e}."
+                    )
 
         console.print(
-            "\n[yellow]⚠️ Agent stopped after 10 tool calls.[/]\n"
+            "\n[yellow]⚠️ Agent stopped after 5 tool calls.[/]\n"
         )
 
     def banner(self):
