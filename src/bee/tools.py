@@ -18,13 +18,14 @@ class ToolExecutor:
                     args["path"]
                 )
 
-            case "write_file":
-                self.fs.write_file(
+            case "edit_file":
+                self.fs.edit_file(
                     args["path"],
-                    args["content"],
+                    args["old_text"],
+                    args["new_text"],
                 )
 
-                return f"Created {args['path']}"
+                return f"Edited {args['path']}"
 
             case _:
                 return f"Unknown tool: {tool_name}"

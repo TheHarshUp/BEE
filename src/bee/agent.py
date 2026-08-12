@@ -114,6 +114,17 @@ class Agent:
                     f"[green]✔ Tool completed[/]\n"
                 )
 
+                if tool_name in {"write_file", "edit_file"}:
+                    console.print(
+                        f"🤖 {result}\n"
+                    )
+
+                    self.memory.add_assistant(
+                        result
+                    )
+
+                    return
+
                 self.memory.add_assistant(
                     response
                 )
@@ -128,7 +139,8 @@ class Agent:
                 )
 
                 self.memory.add_tool_result(
-                    f"Tool failed: {e}"
+                    f"Tool failed: {e}. "
+                    "You must read the file first before attempting another edit."
                 )
 
     def banner(self):

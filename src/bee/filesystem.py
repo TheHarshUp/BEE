@@ -23,6 +23,19 @@ class FileSystem:
             content,
             encoding="utf-8",
         )
+    def edit_file(self, path: str, old_text: str, new_text: str):
+        content = self.read_file(path)
+
+        if old_text not in content:
+            raise ValueError("Text to replace was not found.")
+
+        updated_content = content.replace(
+            old_text,
+            new_text,
+            1,
+        )
+
+        self.write_file(path, updated_content)
 
     def exists(self, path: str):
         return (self.cwd / path).exists()

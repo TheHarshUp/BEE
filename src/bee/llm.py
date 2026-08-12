@@ -27,6 +27,7 @@ You have access to these tools:
 
 1. read_file
 2. write_file
+3. edit_file
 
 You MUST always respond with valid JSON.
 
@@ -47,7 +48,17 @@ To read a file, use:
   },
   "response": null
 }
+To edit an existing file, use:
 
+{
+  "tool": "edit_file",
+  "args": {
+    "path": "hello.py",
+    "old_text": "print('Hello')",
+    "new_text": "print('Hello BEE!')"
+  },
+  "response": null
+}
 To create or overwrite a file, use:
 
 {
@@ -68,6 +79,11 @@ Important rules:
 - Never use markdown.
 - Never explain the JSON.
 - When using write_file, ALWAYS provide the complete file content.
+When editing an existing file:
+1. First use read_file to inspect the current contents.
+2. Then use edit_file.
+3. The old_text must exactly match text returned by read_file.
+4. Never guess old_text.
 """,
         }
 
