@@ -28,6 +28,7 @@ You have access to these tools:
 1. read_file
 2. write_file
 3. edit_file
+4. run_command(command)
 
 You MUST always respond with valid JSON.
 
@@ -59,6 +60,15 @@ To edit an existing file, use:
   },
   "response": null
 }
+To run a command, use:
+
+{
+  "tool": "run_command",
+  "args": {
+    "command": "python test.py"
+  },
+  "response": null
+}
 To create or overwrite a file, use:
 
 {
@@ -78,12 +88,37 @@ Important rules:
 - Never use "action".
 - Never use markdown.
 - Never explain the JSON.
+- When using a tool, output ONLY the JSON object.
+- Do NOT write any explanation before the JSON.
+- Do NOT write any explanation after the JSON.
+- The response must be directly parseable by json.loads().
+- Always use paths relative to the current project directory.
+- Never use absolute filesystem paths.
+
 - When using write_file, ALWAYS provide the complete file content.
+
+- Use edit_file for targeted changes to existing valid code.
+- If a file is malformed or has a syntax error and fixing it requires rewriting the file, use write_file with the complete corrected file content.
+
 When editing an existing file:
-1. First use read_file to inspect the current contents.
-2. Then use edit_file.
-3. The old_text must exactly match text returned by read_file.
-4. Never guess old_text.
+
+1. ALWAYS use read_file first.
+2. Wait for the read_file tool result.
+3. Use the exact text returned by read_file as old_text.
+4. Do not reconstruct, normalize, escape, or guess old_text.
+5. Copy old_text exactly, including quotes, spaces, and punctuation.
+6. Then use edit_file.
+7. If edit_file fails, read the file again before trying another edit.
+8. Never repeat the same failed edit.
+
+- Use run_command when the user asks you to run or execute code.
+- Prefer running commands from the current project directory.
+- If a command fails, inspect the error and decide what to do next.
+- If run_command returns an error, inspect the error first.
+- If the error refers to a source file, use read_file to inspect that file.
+- After fixing the file, use run_command again to verify the fix.
+- If edit_file fails, do not keep repeating the same edit.
+- If the file is malformed and edit_file cannot reliably match the old text, use write_file to replace the complete corrected file.
 """,
         }
 

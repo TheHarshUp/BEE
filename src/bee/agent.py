@@ -68,7 +68,7 @@ class Agent:
     def handle_chat(self, command):
         self.memory.add_user(command)
 
-        while True:
+        for _ in range(5):
             response = self.llm.generate(
                 self.memory.get_messages()
             )
@@ -142,6 +142,10 @@ class Agent:
                     f"Tool failed: {e}. "
                     "You must read the file first before attempting another edit."
                 )
+
+        console.print(
+            "\n[yellow]⚠️ Agent stopped after 10 tool calls.[/]\n"
+        )
 
     def banner(self):
         console.print(

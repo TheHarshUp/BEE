@@ -1,4 +1,5 @@
 from pathlib import Path
+import subprocess
 
 
 class FileSystem:
@@ -27,7 +28,10 @@ class FileSystem:
         content = self.read_file(path)
 
         if old_text not in content:
-            raise ValueError("Text to replace was not found.")
+            raise ValueError(
+                f"Text to replace was not found. "
+                f"Current file content:\n{content}"
+            )
 
         updated_content = content.replace(
             old_text,
@@ -36,6 +40,24 @@ class FileSystem:
         )
 
         self.write_file(path, updated_content)
+    def run_command(self, command: str) -> str:
+        result = subprocess.run(
+            command,
+            shell=True,
+            cwd=self.cwd,
+            capture_output=True,
+            text=True,
+        )
+
+        output = result.stdout
+
+        if result.stderr:
+            output += result.stderr
+
+        if result.returncode != 0:
+            output += f"\nCommand exited with code {result.returncode}"
+
+        return output.strip()
 
     def exists(self, path: str):
         return (self.cwd / path).exists()
