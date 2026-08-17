@@ -75,3 +75,173 @@ class FileSystem:
             self.cwd.iterdir(),
             key=lambda x: (x.is_file(), x.name.lower()),
         )
+    def list_project(self):
+        ignored = {
+            ".git",
+            ".venv",
+            "__pycache__",
+            ".DS_Store",
+            "dist",
+            "build",
+            ".env",
+        }
+
+        files = []
+
+        for path in self.cwd.rglob("*"):
+            if not path.is_file():
+                continue
+
+            if any(part in ignored for part in path.parts):
+                continue
+
+            if any(
+                part.endswith(".egg-info")
+                for part in path.parts
+            ):
+                continue
+
+            files.append(
+                str(path.relative_to(self.cwd))
+            )
+
+        return "\n".join(
+            sorted(files)
+        )
+    def search_project(self, query: str):
+        ignored = {
+            ".git",
+            ".venv",
+            "__pycache__",
+            ".DS_Store",
+            "dist",
+            "build",
+            ".env",
+        }
+
+        terms = [
+            term.lower()
+            for term in query.split()
+            if term.strip()
+        ]
+
+        matches = {}
+
+        for path in self.cwd.rglob("*"):
+            if not path.is_file():
+                continue
+
+            if any(part in ignored for part in path.parts):
+                continue
+
+            if any(
+                part.endswith(".egg-info")
+                for part in path.parts
+            ):
+                continue
+
+            try:
+                lines = path.read_text(
+                    encoding="utf-8"
+                ).splitlines()
+            except (UnicodeDecodeError, OSError):
+                continue
+
+            relative_path = str(
+                path.relative_to(self.cwd)
+            )
+
+            for line_number, line in enumerate(
+                lines,
+                start=1,
+            ):
+                line_lower = line.lower()
+
+                score = sum(
+                    term in line_lower
+                    for term in terms
+                )
+
+                if score > 0:
+                    if relative_path not in matches:
+                        matches[relative_path] = {
+                            "lines": lines,
+                            "matches": [],
+                            "score": 0,
+                        }
+
+                    matches[relative_path]["matches"].append(
+                        line_number
+                    )
+
+                    matches[relative_path]["score"] += score
+
+        if not matches:
+            return "No matches found."
+
+        ranked_files = sorted(
+            matches.items(),
+            key=lambda item: (
+                -item[1]["score"],
+                item[0].lower(),
+            ),
+        )
+
+        results = []
+
+        for relative_path, data in ranked_files:
+            lines = data["lines"]
+            matched_lines = data["matches"]
+
+            groups = []
+            current_group = []
+
+            for line_number in matched_lines:
+                if not current_group:
+                    current_group = [line_number]
+                    continue
+
+                if line_number <= current_group[-1] + 5:
+                    current_group.append(line_number)
+                else:
+                    groups.append(current_group)
+                    current_group = [line_number]
+
+            if current_group:
+                groups.append(current_group)
+
+            file_output = [
+                relative_path
+            ]
+
+            for group in groups:
+                start = max(
+                    1,
+                    group[0] - 2,
+                )
+
+                end = min(
+                    len(lines),
+                    group[-1] + 2,
+                )
+
+                for line_number in range(
+                    start,
+                    end + 1,
+                ):
+                    file_output.append(
+                        f"  {line_number}: "
+                        f"{lines[line_number - 1]}"
+                    )
+
+                file_output.append("")
+
+            results.append(
+                "\n".join(file_output).rstrip()
+            )
+
+            if len(results) >= 20:
+                break
+
+        return "\n\n".join(results)
+        

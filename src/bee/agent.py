@@ -68,7 +68,7 @@ class Agent:
     def handle_chat(self, command):
         self.memory.add_user(command)
 
-        for _ in range(5):
+        for _ in range(10):
             response = self.llm.generate(
                 self.memory.get_messages()
             )
@@ -109,11 +109,11 @@ class Agent:
                 result = self.tools.execute(
                     response
                 )
-
-                if tool_name == "run_command" and result:
+                               
+                if result:
                     console.print(
                         f"[dim]{result}[/]\n"
-    )
+                    )
 
                 if tool_name == "write_file":
                     console.print(
@@ -145,13 +145,22 @@ class Agent:
                         "Do NOT retry edit_file. "
                         "Use write_file instead with the COMPLETE corrected file content."
                     )
+
+                elif tool_name == "read_file":
+                    self.memory.add_tool_result(
+                        f"Tool failed: {e}. "
+                        "The requested file does not exist at that path. "
+                        "Do NOT retry the same path. "
+                        "Use search_project to find the correct file path first."
+                    )
+
                 else:
                     self.memory.add_tool_result(
                         f"Tool failed: {e}."
                     )
 
         console.print(
-            "\n[yellow]⚠️ Agent stopped after 5 tool calls.[/]\n"
+            "\n[yellow]⚠️ Agent stopped after 10 tool calls.[/]\n"
         )
 
     def banner(self):

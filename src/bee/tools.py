@@ -39,6 +39,12 @@ class ToolExecutor:
                 return self.fs.run_command(
                     args["command"]
                 )
+            case "list_project":
+                return self.fs.list_project()
+            case "search_project":
+                return self.fs.search_project(
+                    args["query"]
+                )
 
             case _:
                 return f"Unknown tool: {tool_name}"
